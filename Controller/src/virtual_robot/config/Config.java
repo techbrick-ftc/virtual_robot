@@ -22,13 +22,13 @@ public class Config {
     /**
      * Whether to use "Virtual Gamepad" (true -> Virtual gamepad, false -> Real gamepad)
      */
-    public static final boolean USE_VIRTUAL_GAMEPAD = false;
+    public static final boolean USE_VIRTUAL_GAMEPAD = true;
 
     /**
      * The image object for the field.
      */
     public static final Image BACKGROUND = new Image("/virtual_robot/assets/ultimate_goal_648.bmp");
-
+//    public static final Image BACKGROUND = new Image("/virtual_robot/assets/practice_field648.bmp");
     /**
      * If true, Virtual Gamepad joysticks and triggers will stay in the position where they were
      * released by default. If false, the default behavior will be to "snap back" to zero.
