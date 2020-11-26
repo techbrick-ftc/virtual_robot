@@ -702,6 +702,28 @@ public class VirtualRobotController {
         }
     }
 
+    public class T265CameraImpl implements T265Camera {
+
+        private double robotX;
+        private double robotY;
+
+        @Override
+        public void start() {}
+
+        @Override
+        public void stop() {}
+
+        @Override
+        public synchronized CameraUpdate getLastReceivedCameraUpdate() {
+            return new T265Camera.CameraUpdate(new Pose2d(new Transform2d(robotX, robotY), new Rotation2d()), new ChassisSpeeds(), PoseConfidence.High);
+        }
+
+        public synchronized void updateCamera(double x, double y) {
+            this.robotX = x;
+            this.robotY = y;
+        }
+    }
+
 
     /**
      * Base class for OpMode.
