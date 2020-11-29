@@ -1,9 +1,7 @@
 package virtual_robot.controller.robots.classes;
 
 import com.qualcomm.hardware.bosch.BNO055IMUImpl;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorExImpl;
-import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.*;
 import com.qualcomm.robotcore.hardware.configuration.MotorType;
 
 import virtual_robot.controller.VirtualBot;
@@ -22,6 +20,7 @@ public class MechanumBase extends VirtualBot {
     private BNO055IMUImpl imu = null;
     private VirtualRobotController.ColorSensorImpl colorSensor = null;
     private VirtualRobotController.DistanceSensorImpl[] distanceSensors = null;
+    private T265CameraSingleton t265Camera = null;
 
     private double wheelCircumference;
     protected double gearRatioWheel = 1.0;
@@ -84,6 +83,7 @@ public class MechanumBase extends VirtualBot {
         //hardwareMap.put("gyro_sensor", controller.new GyroSensorImpl());
         hardwareMap.put("imu", new BNO055IMUImpl(this, 10));
         hardwareMap.put("color_sensor", controller.new ColorSensorImpl());
+        t265Camera = T265CameraSingleton.getInstance();
     }
 
     public synchronized void updateStateAndSensors(double millis) {
@@ -134,6 +134,7 @@ public class MechanumBase extends VirtualBot {
                     y + halfBotWidth * Math.cos(sensorHeading), sensorHeading);
         }
 
+        t265Camera.updateCamera(x, y);
     }
 
     public synchronized void updateDisplay() {

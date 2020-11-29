@@ -36,6 +36,7 @@ Modified by FTC Team Beta 8397 for use in the Virtual_Robot Simulator
 package com.qualcomm.robotcore.hardware;
 
 import java.util.*;
+import android.content.Context;
 
 /**
  * HardwareMap provides access to the virtual robot hardware
@@ -107,6 +108,7 @@ public class HardwareMap implements Iterable<HardwareDevice>{
         if (device instanceof CRServo) crservo.put(deviceName, (CRServo)device);
     }
 
+    public final Context appContext = new Context();
 
     /**
      * (Advanced) Removes a device from the overall map, if present. If the device is also present in a
