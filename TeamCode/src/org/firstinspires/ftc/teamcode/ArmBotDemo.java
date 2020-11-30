@@ -97,6 +97,12 @@ public class ArmBotDemo extends LinearOpMode {
             telemetry.addData("Back Distance", " %.1f", backDistance.getDistance(DistanceUnit.CM));
             telemetry.addData("Encoders"," %d %d %d %d", m1.getCurrentPosition(), m2.getCurrentPosition(),
                     m3.getCurrentPosition(), m4.getCurrentPosition());
+
+            telemetry.addData("dpadUp", gamepad1.dpad_up);
+            telemetry.addData("dpadLeft", gamepad1.dpad_left);
+            telemetry.addData("dpadRight", gamepad1.dpad_right);
+            telemetry.addData("dpadDown", gamepad1.dpad_down);
+
             telemetry.update();
         }
         m1.setPower(0);
