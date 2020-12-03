@@ -49,7 +49,7 @@ public class T265Drive extends LinearOpMode {
         telemetry.update();
 
         // Beginning of Autonomous
-        DriveToPosition(-40, 80, 0, 0.5);
+        DriveToPosition(40, -80, -45, 1);
     }
 
     // Configures Drive Commands
@@ -146,11 +146,7 @@ public class T265Drive extends LinearOpMode {
 
         double flPower, rlPower, frPower, rrPower;
 
-        System.out.println("diffX:     " + diffX);
-        System.out.println("diffY:     " + diffY);
-        System.out.println("diffAngle: " + diffAngle);
-
-        while (opModeIsActive() && (Math.abs(diffX) > 1 || Math.abs(diffY) > 1 || Math.abs(diffAngle) > 0.1)) {
+        while (opModeIsActive() && (Math.abs(diffX) > 1 || Math.abs(diffY) > 1 || Math.abs(diffAngle) > 1)) {
             // Get new inputs (current orientation and coordinates)
             orientation = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
             update = slamra.getLastReceivedCameraUpdate();
@@ -160,21 +156,25 @@ public class T265Drive extends LinearOpMode {
             diffX = targetX - update.pose.getTranslation().getX();
             diffY = targetY - update.pose.getTranslation().getY();
 
+            double currentRadians = Math.toRadians(-currentAngle);
+            double rotatedX = diffX * Math.cos(currentRadians) - diffY * Math.sin(currentRadians);
+            double rotatedY = diffY * Math.cos(currentRadians) + diffX * Math.sin(currentRadians);
+
             telemetry.addData("X", update.pose.getTranslation().getX());
             telemetry.addData("Y", update.pose.getTranslation().getY());
             telemetry.addData("Angle", orientation.firstAngle);
             telemetry.addData("diffX", diffX);
             telemetry.addData("diffY", diffY);
+            telemetry.addData("rotatedX", rotatedX);
+            telemetry.addData("rotatedY", rotatedY);
+            telemetry.addData("currentAngle", currentAngle);
             telemetry.addData("diffAngle", diffAngle);
             telemetry.update();
-            System.out.println("diffX:     " + diffX);
-            System.out.println("diffY:     " + diffY);
-            System.out.println("diffAngle: " + diffAngle);
 
-            flPower = diffY + diffX + diffAngle;
-            rlPower = diffY - diffX + diffAngle;
-            frPower = diffY - diffX - diffAngle;
-            rrPower = diffY + diffX - diffAngle;
+            flPower = rotatedY + rotatedX + diffAngle;
+            rlPower = rotatedY - rotatedY + diffAngle;
+            frPower = rotatedY - rotatedX - diffAngle;
+            rrPower = rotatedY + rotatedX - diffAngle;
 
             // Find the largest power
             double max = 0;
@@ -194,7 +194,18 @@ public class T265Drive extends LinearOpMode {
             fr.setPower(frPower * power);
             rr.setPower(rrPower * power);
         }
-
         Stop();
+    }
+
+    private double wrap(double input) {
+        while(Math.abs(input) > 180) {
+            if(input < -180) {
+                input += 360;
+            }
+            else {
+                input -= 360;
+            }
+        }
+        return input;
     }
 }
