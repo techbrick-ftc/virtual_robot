@@ -10,8 +10,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
-@Autonomous(name="T265Drive", group="autonomous")
-public class T265Drive extends LinearOpMode{
+@Autonomous(name = "T265Drive", group = "autonomous")
+public class T265Drive extends LinearOpMode {
 
     // Variables
     private DcMotor fl = null;
@@ -49,13 +49,7 @@ public class T265Drive extends LinearOpMode{
         telemetry.update();
 
         // Beginning of Autonomous
-        while (opModeIsActive()) {
-            T265Camera.CameraUpdate update = slamra.getLastReceivedCameraUpdate();
-            telemetry.addData("T265 X", update.pose.getTranslation().getX());
-            telemetry.addData("T265 Y", update.pose.getTranslation().getY());
-            telemetry.update();
-            Drive((float)0.1, 10);
-        }
+        DriveToPosition(-80, 40, 0, .5);
     }
 
     // Configures Drive Commands
@@ -65,7 +59,8 @@ public class T265Drive extends LinearOpMode{
         rl.setPower(0);
         rr.setPower(0);
     }
-    void Drive(float power, int ticks) {
+
+    void Drive(double power, int ticks) {
         fl.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         fl.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         fl.setTargetPosition(ticks);
@@ -82,13 +77,14 @@ public class T265Drive extends LinearOpMode{
         fr.setPower(power);
         rl.setPower(power);
         rr.setPower(power);
-        while(opModeIsActive()) {
-            if(fl.getCurrentPosition() >= ticks) {
+        while (opModeIsActive()) {
+            if (fl.getCurrentPosition() >= ticks) {
                 break;
             }
         }
     }
-    void Strafe(float power, int ticks) {
+
+    void Strafe(double power, int ticks) {
         fl.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         fl.setTargetPosition(ticks);
         fr.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -101,22 +97,23 @@ public class T265Drive extends LinearOpMode{
         fr.setPower(power);
         rl.setPower(-power);
         rr.setPower(-power);
-        while(opModeIsActive()) {
-            if(fl.getCurrentPosition() >= ticks) {
+        while (opModeIsActive()) {
+            if (fl.getCurrentPosition() >= ticks) {
                 break;
             }
         }
     }
-    void Rotate(float power, int value) {
+
+    void Rotate(double power, int value) {
         Orientation orientation;
         orientation = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-        float target = orientation.firstAngle+value;
+        double target = orientation.firstAngle + value;
         if (value > 0) {
             fl.setPower(-power);
             fr.setPower(power);
             rl.setPower(-power);
             rr.setPower(power);
-            while(opModeIsActive()) {
+            while (opModeIsActive()) {
                 Orientation current;
                 current = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
                 if (current.firstAngle >= target) {
@@ -128,7 +125,7 @@ public class T265Drive extends LinearOpMode{
             fr.setPower(-power);
             rl.setPower(power);
             rr.setPower(-power);
-            while(opModeIsActive()) {
+            while (opModeIsActive()) {
                 Orientation current;
                 current = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
                 if (current.firstAngle <= target) {
@@ -136,5 +133,55 @@ public class T265Drive extends LinearOpMode{
                 }
             }
         }
+    }
+
+    void DriveToPosition(double x, double y, double angle, double power) {
+        T265Camera.CameraUpdate update = slamra.getLastReceivedCameraUpdate();
+        double diffX = x - update.pose.getTranslation().getX();
+        double diffY = y - update.pose.getTranslation().getY();
+        double flPower, rlPower, frPower, rrPower;
+
+        System.out.println("diffX:     " + diffX);
+        System.out.println("diffY:     " + diffY);
+
+        while (opModeIsActive() && (diffX > 1 || diffY > 1)) {
+            System.out.println("LOOPING");
+            update = slamra.getLastReceivedCameraUpdate();
+            diffX = x - update.pose.getTranslation().getX();
+            diffY = y - update.pose.getTranslation().getY();
+
+            telemetry.addData("X", update.pose.getTranslation().getX());
+            telemetry.addData("Y", update.pose.getTranslation().getY());
+            telemetry.addData("diffX", diffX);
+            telemetry.addData("diffY", diffY);
+            telemetry.update();
+            System.out.println("diffX:     " + diffX);
+            System.out.println("diffY:     " + diffY);
+
+            flPower = diffY + diffX;
+            rlPower = diffY - diffX;
+            frPower = diffY - diffX;
+            rrPower = diffY + diffX;
+
+            // Find the largest power
+            double max = 0;
+            max = Math.max(Math.abs(flPower), Math.abs(rlPower));
+            max = Math.max(Math.abs(frPower), max);
+            max = Math.max(Math.abs(rrPower), max);
+
+            // Divide everything by max (it's positive so we don't need to worry
+            // about signs)
+            flPower /= max;
+            rlPower /= max;
+            frPower /= max;
+            rrPower /= max;
+
+            fl.setPower(flPower * power);
+            rl.setPower(rlPower * power);
+            fr.setPower(frPower * power);
+            rr.setPower(rrPower * power);
+        }
+
+        Stop();
     }
 }
