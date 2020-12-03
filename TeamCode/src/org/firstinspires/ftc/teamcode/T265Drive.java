@@ -107,8 +107,15 @@ public class T265Drive extends LinearOpMode {
     void Rotate(double power, int value) {
         Orientation orientation;
         orientation = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-        double target = orientation.firstAngle + value;
-        if (value > 0) {
+        double target = wrap(orientation.firstAngle + value);
+        RotateTo(power, target);
+    }
+
+    void RotateTo(double power, double value) {
+        Orientation orientation;
+        orientation = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        double target = wrap(value);
+        if (target - orientation.firstAngle > 0) {
             fl.setPower(-power);
             fr.setPower(power);
             rl.setPower(-power);
