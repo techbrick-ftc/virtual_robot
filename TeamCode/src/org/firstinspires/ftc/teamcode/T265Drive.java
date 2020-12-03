@@ -49,7 +49,7 @@ public class T265Drive extends LinearOpMode {
         telemetry.update();
 
         // Beginning of Autonomous
-        DriveToPosition(-80, 40, 0, .5);
+        DriveToPosition(-40, 80, 0, 0.5);
     }
 
     // Configures Drive Commands
@@ -135,33 +135,46 @@ public class T265Drive extends LinearOpMode {
         }
     }
 
-    void DriveToPosition(double x, double y, double angle, double power) {
+    void DriveToPosition(double targetX, double targetY, double targetAngle, double power) {
+        Orientation orientation = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        double currentAngle = orientation.firstAngle;
         T265Camera.CameraUpdate update = slamra.getLastReceivedCameraUpdate();
-        double diffX = x - update.pose.getTranslation().getX();
-        double diffY = y - update.pose.getTranslation().getY();
+
+        double diffAngle = currentAngle - targetAngle;
+        double diffX = targetX - update.pose.getTranslation().getX();
+        double diffY = targetY - update.pose.getTranslation().getY();
+
         double flPower, rlPower, frPower, rrPower;
 
         System.out.println("diffX:     " + diffX);
         System.out.println("diffY:     " + diffY);
+        System.out.println("diffAngle: " + diffAngle);
 
-        while (opModeIsActive() && (diffX > 1 || diffY > 1)) {
-            System.out.println("LOOPING");
+        while (opModeIsActive() && (Math.abs(diffX) > 1 || Math.abs(diffY) > 1 || Math.abs(diffAngle) > 0.1)) {
+            // Get new inputs (current orientation and coordinates)
+            orientation = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
             update = slamra.getLastReceivedCameraUpdate();
-            diffX = x - update.pose.getTranslation().getX();
-            diffY = y - update.pose.getTranslation().getY();
+            currentAngle = orientation.firstAngle;
+
+            diffAngle = currentAngle - targetAngle;
+            diffX = targetX - update.pose.getTranslation().getX();
+            diffY = targetY - update.pose.getTranslation().getY();
 
             telemetry.addData("X", update.pose.getTranslation().getX());
             telemetry.addData("Y", update.pose.getTranslation().getY());
+            telemetry.addData("Angle", orientation.firstAngle);
             telemetry.addData("diffX", diffX);
             telemetry.addData("diffY", diffY);
+            telemetry.addData("diffAngle", diffAngle);
             telemetry.update();
             System.out.println("diffX:     " + diffX);
             System.out.println("diffY:     " + diffY);
+            System.out.println("diffAngle: " + diffAngle);
 
-            flPower = diffY + diffX;
-            rlPower = diffY - diffX;
-            frPower = diffY - diffX;
-            rrPower = diffY + diffX;
+            flPower = diffY + diffX + diffAngle;
+            rlPower = diffY - diffX + diffAngle;
+            frPower = diffY - diffX - diffAngle;
+            rrPower = diffY + diffX - diffAngle;
 
             // Find the largest power
             double max = 0;
