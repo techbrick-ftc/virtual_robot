@@ -6,7 +6,7 @@ public class T265Camera {
     private T265CameraSingleton t265 = T265CameraSingleton.getInstance();
 
 
-    public T265Camera(T265Camera.Transform2d robotOffset, double odometryCovariance, Context appContext) {}
+    public T265Camera(Translation2d robotOffset, double odometryCovariance, Context appContext) {}
 
     public void start() {
         t265.start();
@@ -33,32 +33,32 @@ public class T265Camera {
     }
 
     public static class Pose2d {
-        private Transform2d transform2d;
+        private Translation2d translation2D;
         private Rotation2d rotation2d;
 
-        public Pose2d(Transform2d transform2d, Rotation2d rotation2d) {
-            this.transform2d = transform2d;
+        public Pose2d(Translation2d translation2D, Rotation2d rotation2d) {
+            this.translation2D = translation2D;
             this.rotation2d = rotation2d;
         }
 
         public Pose2d() {
-            this(new Transform2d(), new Rotation2d());
+            this(new Translation2d(), new Rotation2d());
         }
 
-        public Transform2d getTransform() { return this.transform2d; }
+        public Translation2d getTranslation() { return this.translation2D; }
         public Rotation2d getRotation() { return this.rotation2d; }
     }
 
-    public static class Transform2d {
+    public static class Translation2d {
         private double x;
         private double y;
 
-        public Transform2d(double x, double y) {
+        public Translation2d(double x, double y) {
             this.x = x;
             this.y = y;
         }
 
-        public Transform2d() {
+        public Translation2d() {
             this(0, 0);
         }
 

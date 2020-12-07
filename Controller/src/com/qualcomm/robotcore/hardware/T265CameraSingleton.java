@@ -17,7 +17,7 @@ public class T265CameraSingleton {
     public void stop() {}
 
     public synchronized T265Camera.CameraUpdate getLastReceivedCameraUpdate() {
-        return new T265Camera.CameraUpdate(new T265Camera.Pose2d(new T265Camera.Transform2d(robotX, robotY),
+        return new T265Camera.CameraUpdate(new T265Camera.Pose2d(new T265Camera.Translation2d(robotX, robotY),
                                                                  new T265Camera.Rotation2d()),
                                            new T265Camera.ChassisSpeeds(),
                                            T265Camera.PoseConfidence.High);
