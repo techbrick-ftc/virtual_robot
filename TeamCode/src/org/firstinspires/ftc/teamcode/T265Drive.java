@@ -2,10 +2,8 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.T265Camera;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
@@ -37,7 +35,7 @@ public class T265Drive extends LinearOpMode{
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(new BNO055IMU.Parameters());
 
-        slamra = new T265Camera(new T265Camera.Transform2d(), 0.1, hardwareMap.appContext);
+        slamra = new T265Camera(new T265Camera.Translation2d(), 0.1, hardwareMap.appContext);
 
         fl.setDirection(DcMotor.Direction.REVERSE);
         rl.setDirection(DcMotor.Direction.REVERSE);
