@@ -46,7 +46,7 @@ public class T265Camera {
         }
 
         public Translation2d getTranslation() { return this.translation2D; }
-        public Rotation2d getRotation() { return this.rotation2d; }
+        public Rotation2d getRotation2d() { return this.rotation2d; }
     }
 
     public static class Translation2d {
