@@ -45,6 +45,7 @@ public class T265Drive extends LinearOpMode{
         rr.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         waitForStart();
+        slamra.start();
         telemetry.addData("Status", "Operational");
         telemetry.update();
 

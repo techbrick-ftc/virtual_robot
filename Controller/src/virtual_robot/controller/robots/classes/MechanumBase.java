@@ -21,6 +21,7 @@ public class MechanumBase extends VirtualBot {
     private VirtualRobotController.ColorSensorImpl colorSensor = null;
     private VirtualRobotController.DistanceSensorImpl[] distanceSensors = null;
     private T265CameraSingleton t265Camera = null;
+    private boolean firstLoop = true;
 
     private double wheelCircumference;
     protected double gearRatioWheel = 1.0;
@@ -133,7 +134,11 @@ public class MechanumBase extends VirtualBot {
             distanceSensors[i].updateDistance(x - halfBotWidth * Math.sin(sensorHeading),
                     y + halfBotWidth * Math.cos(sensorHeading), sensorHeading);
         }
-
+        if (firstLoop) {
+            System.out.println("Ran first loop");
+            t265Camera.startCamera(x, y);
+            firstLoop = false;
+        }
         t265Camera.updateCamera(x, y);
     }
 
@@ -144,6 +149,7 @@ public class MechanumBase extends VirtualBot {
     public void powerDownAndReset() {
         for (int i = 0; i < 4; i++) motors[i].stopAndReset();
         imu.close();
+        firstLoop = true;
     }
 
 

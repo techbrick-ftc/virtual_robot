@@ -3,10 +3,13 @@ package com.qualcomm.robotcore.hardware;
 import android.content.Context;
 
 public class T265Camera {
-    private T265CameraSingleton t265 = T265CameraSingleton.getInstance();
+    private static T265CameraSingleton t265 = T265CameraSingleton.getInstance();
 
 
-    public T265Camera(Translation2d robotOffset, double odometryCovariance, Context appContext) {}
+    public T265Camera(Translation2d robotOffset, double odometryCovariance, Context appContext) {
+        t265.reset();
+        t265.setOffset(robotOffset);
+    }
 
     public void start() {
         t265.start();
@@ -19,6 +22,8 @@ public class T265Camera {
     public T265Camera.CameraUpdate getLastReceivedCameraUpdate() {
         return t265.getLastReceivedCameraUpdate();
     }
+
+    public void setPose(Translation2d offset) { t265.setOffset(offset); }
 
     public static class CameraUpdate {
         public final Pose2d pose;
