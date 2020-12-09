@@ -550,6 +550,7 @@ public class VirtualRobotController {
     private void handleFieldMouseClick(MouseEvent arg){
         if (opModeInitialized || opModeStarted) return;
         bot.positionWithMouseClick(arg);
+        initializeTelemetryTextArea();
     }
 
 
@@ -578,6 +579,7 @@ public class VirtualRobotController {
         StringBuilder sb = new StringBuilder();
         sb.append("Left-click to position bot.");
         sb.append("\nRight-click to orient bot.");
+        sb.append(String.format("\nPos: %.0f | %.0f", bot.getX(), bot.getY()));
         sb.append("\n\nCONFIG");
         Set<String> motors = hardwareMap.dcMotor.keySet();
         if (!motors.isEmpty()) {

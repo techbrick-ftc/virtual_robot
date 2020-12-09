@@ -197,6 +197,7 @@ public abstract class VirtualBot {
             headingRadians = -displayAngleRads;
             constrainToBoundaries();
             updateDisplay();
+
         }
     }
 
