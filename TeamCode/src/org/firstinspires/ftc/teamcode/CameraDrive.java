@@ -37,7 +37,7 @@ public class CameraDrive {
     }
 
     public void goToPosition(double moveX, double moveY, double speed, TeleAuto callback) {
-        speed = Math.max(0.2, Math.min(speed, 0.3));
+        speed = clamp(0.2, speed, 1);
 
         boolean xComplete = false;
         boolean yComplete = false;
@@ -63,9 +63,17 @@ public class CameraDrive {
 
             double theta = Math.atan2(deltaX, deltaY);
 
+            double localSpeed = speed;
+            if (deltaX < 1 && deltaY < 1) {
+                localSpeed *= deltaX;
+            } else if (deltaX < 5 && deltaY < 5) {
+                localSpeed /= deltaX;
+            }
+            localSpeed = clamp(0.2, 1, localSpeed);
+
             for (int i = 0; i < motors.length; i++) {
-                motors[i].setPower(Math.sin(angles[i] - theta) * speed);
-                motorSpeeds[i] = Math.sin(angles[i] - theta) * speed;
+                motors[i].setPower(Math.sin(angles[i] - theta) * localSpeed);
+                motorSpeeds[i] = Math.sin(angles[i] - theta) * localSpeed;
             }
 
             if (telemetry != null) {
@@ -78,6 +86,10 @@ public class CameraDrive {
         for (DcMotor motor : motors) {
             motor.setPower(0);
         }
+    }
+
+    private double clamp(double min, double max, double value) {
+        return Math.max(min, Math.min(value, max));
     }
 
     private void writeTelemetry(double moveX, double moveY, double deltaX, double deltaY, boolean xComplete, boolean yComplete) {
