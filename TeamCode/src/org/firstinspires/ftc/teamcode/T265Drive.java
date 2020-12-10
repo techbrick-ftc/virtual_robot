@@ -51,8 +51,8 @@ public class T265Drive extends LinearOpMode{
         // Beginning of Autonomous
         while (opModeIsActive()) {
             T265Camera.CameraUpdate update = slamra.getLastReceivedCameraUpdate();
-            telemetry.addData("T265 X", update.pose.getTransform().getX());
-            telemetry.addData("T265 Y", update.pose.getTransform().getY());
+            telemetry.addData("T265 X", update.pose.getTranslation().getX());
+            telemetry.addData("T265 Y", update.pose.getTranslation().getY());
             telemetry.update();
             Drive((float)0.1, 10);
         }
