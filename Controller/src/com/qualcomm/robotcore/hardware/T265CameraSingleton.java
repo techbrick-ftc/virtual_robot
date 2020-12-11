@@ -20,6 +20,8 @@ public class T265CameraSingleton {
 
     private boolean started = false;
 
+    private T265Camera.CameraMode cameraMode = T265Camera.CameraMode.NORMAL;
+
     public void start() {
         if (!this.started) {
             this.started = true;
@@ -38,9 +40,8 @@ public class T265CameraSingleton {
 
     public synchronized T265Camera.CameraUpdate getLastReceivedCameraUpdate() {
         if (!this.started) { throw new RuntimeException("Camera not started!"); }
-        double outputX = robotX - startX + offsetX;
-        double outputY = robotY - startY + offsetY;
-        System.out.printf("Robot: %f | %f\nStart: %f | %f\nOffset %f | %f\n", robotX, robotY, startX, startY, offsetX, offsetY);
+        double outputX = cameraMode.equals(T265Camera.CameraMode.ARCADE) ? robotX : robotX - startX + offsetX;
+        double outputY = cameraMode.equals(T265Camera.CameraMode.ARCADE) ? robotY : robotY - startY + offsetY;
         return new T265Camera.CameraUpdate(new T265Camera.Pose2d(new T265Camera.Translation2d(outputX, outputY),
                                                                  new T265Camera.Rotation2d()),
                                            new T265Camera.ChassisSpeeds(),
@@ -62,6 +63,10 @@ public class T265CameraSingleton {
         this.robotY = y;
     }
 
+    public void setMode(T265Camera.CameraMode cameraMode) {
+        this.cameraMode = cameraMode;
+    }
+
     public void reset() {
         this.robotX = 0;
         this.robotY = 0;
@@ -70,4 +75,6 @@ public class T265CameraSingleton {
 
         this.started = false;
     }
+
+
 }

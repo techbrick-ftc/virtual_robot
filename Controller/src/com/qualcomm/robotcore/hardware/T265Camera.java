@@ -25,6 +25,8 @@ public class T265Camera {
 
     public void setPose(Translation2d offset) { t265.setOffset(offset); }
 
+    public void setMode(CameraMode mode) { t265.setMode(mode); }
+
     public static class CameraUpdate {
         public final Pose2d pose;
         public final ChassisSpeeds velocity;
@@ -75,13 +77,18 @@ public class T265Camera {
 
     public static class ChassisSpeeds {}
 
-    public static enum PoseConfidence {
+    public enum PoseConfidence {
         Failed,
         Low,
         Medium,
         High;
 
-        private PoseConfidence() {
+        PoseConfidence() {
         }
+    }
+
+    public enum CameraMode {
+        ARCADE,
+        NORMAL
     }
 }
