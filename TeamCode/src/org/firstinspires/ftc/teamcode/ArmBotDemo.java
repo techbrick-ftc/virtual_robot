@@ -47,11 +47,12 @@ public class ArmBotDemo extends LinearOpMode {
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.accelerationIntegrationAlgorithm = null;
         parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
+        parameters.angleUnit = BNO055IMU.AngleUnit.RADIANS;
         parameters.calibrationData = null;
         parameters.calibrationDataFile = "";
         parameters.loggingEnabled = false;
         parameters.loggingTag = "Who cares.";
+        parameters.arcade = true;
 
         imu.initialize(parameters);
 
@@ -88,7 +89,7 @@ public class ArmBotDemo extends LinearOpMode {
             else if (gamepad1.b) handServo.setPosition(0);
             telemetry.addData("Color","R %d  G %d  B %d", colorSensor.red(), colorSensor.green(), colorSensor.blue());
             //telemetry.addData("Heading"," %.1f", gyro.getHeading());
-            Orientation orientation = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS);
+            Orientation orientation = imu.getAngularOrientation(AxesReference.EXTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS);
             telemetry.addData("Heading", " %.1f", orientation.firstAngle * 180.0 / Math.PI);
 
             telemetry.addData("Front Distance", " %.1f", frontDistance.getDistance(DistanceUnit.CM));

@@ -33,12 +33,16 @@ public class CameraTest extends LinearOpMode implements TeleAuto {
         rr = hardwareMap.get(DcMotor.class, "back_right_motor");
 
         imu = hardwareMap.get(BNO055IMU.class, "imu");
-        imu.initialize(new BNO055IMU.Parameters());
+        BNO055IMU.Parameters params = new BNO055IMU.Parameters();
+        params.angleUnit = BNO055IMU.AngleUnit.RADIANS;
+        params.arcade = true;
+        imu.initialize(params);
 
         camera = new T265Camera(new T265Camera.Translation2d(), 0.1, hardwareMap.appContext);
+        camera.setMode(T265Camera.CameraMode.ARCADE);
 
-        //fl.setDirection(DcMotor.Direction.REVERSE);
-        //rl.setDirection(DcMotor.Direction.REVERSE);
+        // fl.setDirection(DcMotor.Direction.REVERSE);
+        // rl.setDirection(DcMotor.Direction.REVERSE);
         fl.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         fr.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rl.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -58,7 +62,7 @@ public class CameraTest extends LinearOpMode implements TeleAuto {
         // Beginning of Autonomous
         if (opModeIsActive()) {
             camera.start();
-            drive.goToPosition(50, 30, 2, this);
+            drive.goTo(-200, 132, PI, 1, this);
             camera.stop();
         }
     }

@@ -63,6 +63,7 @@ public interface BNO055IMU extends HardwareDevice {
         public AccelerationIntegrator accelerationIntegrationAlgorithm = null;
         public boolean          loggingEnabled      = false;
         public String           loggingTag          = "AdaFruitIMU";
+        public boolean          arcade              = false;
     }
 
     /**

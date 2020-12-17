@@ -75,7 +75,7 @@ public class BNO055IMUImpl implements BNO055IMU {
     public synchronized Orientation getAngularOrientation(AxesReference reference, AxesOrder order, org.firstinspires.ftc.robotcore.external.navigation.AngleUnit angleUnit) {
         if (!initialized) return null;
 
-        double heading = headingRadians - initialHeadingRadians;
+        double heading = parameters.arcade ? headingRadians : headingRadians - initialHeadingRadians;
         if (heading > Math.PI) heading -= 2.0 * Math.PI;
         else if (heading < -Math.PI) heading += 2.0 * Math.PI;
 
