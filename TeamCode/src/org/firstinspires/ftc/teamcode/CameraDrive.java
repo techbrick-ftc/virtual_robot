@@ -3,15 +3,19 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.T265Camera;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.sun.org.glassfish.gmbal.ParameterNames;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
+import java.util.Arrays;
+import java.util.DoubleSummaryStatistics;
+import java.util.OptionalDouble;
+
 import static java.lang.Math.PI;
 import static java.lang.Math.abs;
+import static java.lang.Math.max;
 
 public class CameraDrive {
     private DcMotor[] motors;
@@ -23,6 +27,9 @@ public class CameraDrive {
 
     private Orientation gangles() { return imu.getAngularOrientation(AxesReference.EXTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS); }
     private Telemetry telemetry;
+
+    private boolean driving;
+    private boolean turning;
 
     public void setUp(DcMotor[] motors, double[] angles, T265Camera camera, BNO055IMU imu) {
         setUp(motors, angles, camera, imu, null);
@@ -38,6 +45,8 @@ public class CameraDrive {
         this.camera = camera;
         this.imu = imu;
         this.telemetry = telemetry;
+        this.driving = true;
+        this.turning = true;
     }
 
     public void goToPosition(double moveX, double moveY, TeleAuto callback) {
@@ -45,14 +54,17 @@ public class CameraDrive {
     }
 
     public void goToPosition(double moveX, double moveY, double speed, TeleAuto callback) {
-        double currentAngle = gangles().firstAngle;
-        goTo(moveX, moveY, currentAngle, )
+        this.turning = false;
+        goTo(moveX, moveY, 0, speed, callback);
+        this.turning = true;
     }
 
     public void goToRotation(double theta, TeleAuto callback) { goToRotation(theta, 1, callback); }
 
     public void goToRotation(double theta, double speed, TeleAuto callback) {
+        this.driving = false;
         goTo(0, 0, theta, speed, callback);
+        this.driving = true;
     }
 
     public void goTo(double moveX, double moveY, double theta, double speed, TeleAuto callback) {
@@ -72,9 +84,9 @@ public class CameraDrive {
             double currentY = this.translation2d.getY();
             double currentTheta = gangles().firstAngle;
 
-            double deltaX = moveX - currentX;
-            double deltaY = moveY - currentY;
-            double deltaTheta = wrap(localTheta - currentTheta);
+            double deltaX = this.driving ? moveX - currentX : 0;
+            double deltaY = this.driving ? moveY - currentY : 0;
+            double deltaTheta = this.turning ? wrap(localTheta - currentTheta) : 0;
 
             xComplete = abs(deltaX) < 0.3;
             yComplete = abs(deltaY) < 0.3;
@@ -94,12 +106,19 @@ public class CameraDrive {
             }
             localSpeed = clamp(0.2, 1, localSpeed);
 
-            for (int i = 0; i < motors.length; i++) {
-                motors[i].setPower(Math.sin(angles[i] - driveTheta) * localSpeed + deltaTheta);
-                motorSpeeds[i] = Math.sin(angles[i] - driveTheta) * localSpeed + deltaTheta;
+            for (int i = 0; i < this.motors.length; i++) {
+                this.motorSpeeds[i] = (Math.sin(this.angles[i] - driveTheta) + deltaTheta) * localSpeed;
             }
 
-            writeTelemetry(moveX, moveY, deltaX, deltaY, avg(abs(deltaX), abs(deltaY)), localSpeed, xComplete, yComplete);
+            OptionalDouble optionalSpeed = Arrays.stream(motorSpeeds).max();
+            double fastestSpeed = optionalSpeed.isPresent() ? optionalSpeed.getAsDouble() : 0;
+            boolean scale = fastestSpeed > 1;
+            double scaleFactor = 1 / fastestSpeed;
+            for (int i = 0; i < this.motors.length; i++) {
+                this.motors[i].setPower(scale ? this.motorSpeeds[i] * scaleFactor : this.motorSpeeds[i]);
+            }
+
+            writeTelemetry(moveX, moveY, deltaX, deltaY, fastestSpeed, scaleFactor, xComplete, yComplete);
             writeTelemetry(localTheta, deltaTheta, currentTheta);
         }
     }
@@ -135,7 +154,7 @@ public class CameraDrive {
         return output;
     }
 
-    private void writeTelemetry(double moveX, double moveY, double deltaX, double deltaY, double avg, double speed, boolean xComplete, boolean yComplete) {
+    private void writeTelemetry(double moveX, double moveY, double deltaX, double deltaY, double fastest, double scale, boolean xComplete, boolean yComplete) {
         if (telemetry == null) { return; }
         telemetry.addData("Current X", this.translation2d.getX());
         telemetry.addData("Current Y", this.translation2d.getY());
@@ -143,8 +162,8 @@ public class CameraDrive {
         telemetry.addData("Move Y", moveY);
         telemetry.addData("Delta X", deltaX);
         telemetry.addData("Delta Y", deltaY);
-        telemetry.addData("Average", avg);
-        telemetry.addData("Speed", speed);
+        telemetry.addData("Fastest Speed", fastest);
+        telemetry.addData("Scale Factor", scale);
         telemetry.addData("Heading", gangles().firstAngle);
         telemetry.addData("X Complete", xComplete);
         telemetry.addData("Y Complete", yComplete);
