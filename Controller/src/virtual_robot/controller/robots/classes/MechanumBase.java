@@ -139,7 +139,7 @@ public class MechanumBase extends VirtualBot {
             t265Camera.startCamera(x, y);
             firstLoop = false;
         }
-        t265Camera.updateCamera(x, y);
+        t265Camera.updateCamera(y, -x);
     }
 
     public synchronized void updateDisplay() {
